@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+	</head>
+
+	<body>
+
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			mui.init();
+			mui.plusReady(function() {
+				/**
+				 * 创建一个窗口对象，加载外部页面；
+				 * http://www.html5plus.org/doc/zh_cn/webview.html#plus.webview.create
+				 */
+				var imageWv = plus.webview.create("http://km.wm6688.net");
+				
+				/**
+				 * 窗口对象添加JS文件
+				 * http://www.html5plus.org/doc/zh_cn/webview.html#plus.webview.WebviewObject.appendJsFile
+				 */
+				imageWv.appendJsFile("_www/js/mui.min.js");
+				imageWv.appendJsFile("_www/js/downloadImage.js");
+
+				/**
+				 * 展示窗口
+				 * http://www.html5plus.org/doc/zh_cn/webview.html#plus.webview.WebviewObject.show
+				 */
+				imageWv.show();
+			});
+		</script>
+	</body>
+
+</html>

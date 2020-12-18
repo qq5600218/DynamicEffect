@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <title>Turn.js 实现翻书效果</title>
+    <script type="text/javascript" src="http://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/modernizr/2.5.3/modernizr.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/turn.js/0.1/turn.js"></script>
+    <style>
+        /* Basic sample */
+
+        body {
+            overflow: hidden;
+            background-color: #ffffff;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .flipbook-viewport {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+
+        .flipbook-viewport .container {}
+
+        .flipbook-viewport .flipbook {}
+
+        .flipbook-viewport .page {
+            width: 461px;
+            height: 600px;
+            background-color: #fff;
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+        }
+
+        .flipbook .page {
+            background-color: #fff;
+            -webkit-box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            -ms-box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            -o-box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .flipbook-viewport .page img {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            margin: 0;
+        }
+
+        .flipbook-viewport .shadow {
+            -webkit-transition: -webkit-box-shadow 0.5s;
+            -moz-transition: -moz-box-shadow 0.5s;
+            -o-transition: -webkit-box-shadow 0.5s;
+            -ms-transition: -ms-box-shadow 0.5s;
+
+            -webkit-box-shadow: 0 0 20px #ccc;
+            -moz-box-shadow: 0 0 20px #ccc;
+            -o-box-shadow: 0 0 20px #ccc;
+            -ms-box-shadow: 0 0 20px #ccc;
+            box-shadow: 0 0 20px #ccc;
+        }
+
+        @-webkit-keyframes reverseRotataZ {
+            0% {
+                -webkit-transform: rotateZ(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotateZ(-360deg);
+            }
+        }
+
+        @-webkit-keyframes rotataZ {
+            0% {
+                -webkit-transform: rotateZ(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotateZ(360deg);
+            }
+        }
+
+        .pull-left {
+            position: absolute;
+            bottom: 5%;
+            right: 0;
+            overflow: hidden;
+            width: 240px;
+            height: 200px;
+        }
+
+        /*  |xGv00|e69d3d10a97baed58b34702fd0b01ff5 */
+
+
+        .loadinner {
+            position: absolute;
+            width: 76%;
+            height: 100%;
+            margin-left: -38%;
+            left: 50%;
+            text-align: center;
+            font-size: 11px;
+            line-height: 20px;
+        }
+
+        .graph {
+            background: #6c6c6c;
+            width: 70%;
+            margin: 10px auto 0 auto;
+        }
+
+        #bar {
+            display: block;
+            background: #f1f1f1;
+            height: 3px;
+            width: 10px;
+        }
+
+        #diary {
+            width: 70%;
+            margin: 0 auto;
+        }
+
+        #chupin {
+            width: 100%;
+            position: absolute;
+            bottom: 80px;
+        }
+
+        #cpright {
+            position: absolute;
+            bottom: 50px;
+            color: #757575;
+            font-size: 9px;
+            text-align: center;
+            width: 100%;
+            letter-spacing: -1px;
+            word-spacing: -1px;
+        }
+
+        #btns {
+            position: absolute;
+            left: 50%;
+            top: 15%;
+            width: 44%;
+            margin: 0 0 0 -22%;
+            z-index: 999;
+        }
+
+        #btns button,
+        #btns a {
+            line-height: 36px;
+            background: #1ea5d2;
+            border: 1px solid #fcfcfc;
+            color: #404040;
+            width: 100%;
+            height: 36px;
+            font-size: 17px;
+            font-family: "微软雅黑";
+            display: block;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .shade {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0%;
+            left: 0%;
+            z-index: 1000008;
+            /*background-color: rgba(0 ,0, 0, 0.5);*/
+            /*border: 1px solid red;*/
+        }
+
+        /*环形进度条*/
+
+        .loadingImg {
+            width: 60px;
+            height: 60px;
+            position: fixed;
+            bottom: 1%;
+            left: 42%;
+        }
+
+        .sk-fading-circle {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            top: 32%;
+            left: 40%;
+        }
+
+        .sk-fading-circle .sk-circle {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .sk-fading-circle .sk-circle:before {
+            content: '';
+            display: block;
+            margin: 0 auto;
+            width: 15%;
+            height: 15%;
+            background-color: #ffffff;
+            border-radius: 100%;
+            -webkit-animation: sk-circleFadeDelay 1.2s infinite ease-in-out both;
+            animation: sk-circleFadeDelay 1.2s infinite ease-in-out both;
+        }
+
+        .sk-fading-circle .sk-circle2 {
+            -webkit-transform: rotate(30deg);
+            -ms-transform: rotate(30deg);
+            transform: rotate(30deg);
+        }
+
+        .sk-fading-circle .sk-circle3 {
+            -webkit-transform: rotate(60deg);
+            -ms-transform: rotate(60deg);
+            transform: rotate(60deg);
+        }
+
+        .sk-fading-circle .sk-circle4 {
+            -webkit-transform: rotate(90deg);
+            -ms-transform: rotate(90deg);
+            transform: rotate(90deg);
+        }
+
+        .sk-fading-circle .sk-circle5 {
+            -webkit-transform: rotate(120deg);
+            -ms-transform: rotate(120deg);
+            transform: rotate(120deg);
+        }
+
+        .sk-fading-circle .sk-circle6 {
+            -webkit-transform: rotate(150deg);
+            -ms-transform: rotate(150deg);
+            transform: rotate(150deg);
+        }
+
+        .sk-fading-circle .sk-circle7 {
+            -webkit-transform: rotate(180deg);
+            -ms-transform: rotate(180deg);
+            transform: rotate(180deg);
+        }
+
+        .sk-fading-circle .sk-circle8 {
+            -webkit-transform: rotate(210deg);
+            -ms-transform: rotate(210deg);
+            transform: rotate(210deg);
+        }
+
+        .sk-fading-circle .sk-circle9 {
+            -webkit-transform: rotate(240deg);
+            -ms-transform: rotate(240deg);
+            transform: rotate(240deg);
+        }
+
+        .sk-fading-circle .sk-circle10 {
+            -webkit-transform: rotate(270deg);
+            -ms-transform: rotate(270deg);
+            transform: rotate(270deg);
+        }
+
+        .sk-fading-circle .sk-circle11 {
+            -webkit-transform: rotate(300deg);
+            -ms-transform: rotate(300deg);
+            transform: rotate(300deg);
+        }
+
+        .sk-fading-circle .sk-circle12 {
+            -webkit-transform: rotate(330deg);
+            -ms-transform: rotate(330deg);
+            transform: rotate(330deg);
+        }
+
+        .sk-fading-circle .sk-circle2:before {
+            -webkit-animation-delay: -1.1s;
+            animation-delay: -1.1s;
+        }
+
+        .sk-fading-circle .sk-circle3:before {
+            -webkit-animation-delay: -1s;
+            animation-delay: -1s;
+        }
+
+        .sk-fading-circle .sk-circle4:before {
+            -webkit-animation-delay: -0.9s;
+            animation-delay: -0.9s;
+        }
+
+        .sk-fading-circle .sk-circle5:before {
+            -webkit-animation-delay: -0.8s;
+            animation-delay: -0.8s;
+        }
+
+        .sk-fading-circle .sk-circle6:before {
+            -webkit-animation-delay: -0.7s;
+            animation-delay: -0.7s;
+        }
+
+        .sk-fading-circle .sk-circle7:before {
+            -webkit-animation-delay: -0.6s;
+            animation-delay: -0.6s;
+        }
+
+        .sk-fading-circle .sk-circle8:before {
+            -webkit-animation-delay: -0.5s;
+            animation-delay: -0.5s;
+        }
+
+        .sk-fading-circle .sk-circle9:before {
+            -webkit-animation-delay: -0.4s;
+            animation-delay: -0.4s;
+        }
+
+        .sk-fading-circle .sk-circle10:before {
+            -webkit-animation-delay: -0.3s;
+            animation-delay: -0.3s;
+        }
+
+        .sk-fading-circle .sk-circle11:before {
+            -webkit-animation-delay: -0.2s;
+            animation-delay: -0.2s;
+        }
+
+        .sk-fading-circle .sk-circle12:before {
+            -webkit-animation-delay: -0.1s;
+            animation-delay: -0.1s;
+        }
+
+        @-webkit-keyframes sk-circleFadeDelay {
+
+            0%,
+            39%,
+            100% {
+                opacity: 0;
+            }
+
+            40% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes sk-circleFadeDelay {
+
+            0%,
+            39%,
+            100% {
+                opacity: 0;
+            }
+
+            40% {
+                opacity: 1;
+            }
+        }
+
+        /*进度数字*/
+        .number {
+            width: 15%;
+            height: 10%;
+            position: fixed;
+            top: 47%;
+            left: 45%;
+            z-index: 1000009;
+            color: #ffffff;
+            /* border: 1px solid red; */
+        }
+
+
+        /*上一页*/
+        .previousPage {
+            width: 16%;
+            height: 20%;
+            position: fixed;
+            top: 80%;
+            left: 22%;
+            z-index: 999999;
+            /*border:1px solid red;*/
+            background: transparent !important;
+        }
+
+        /*返回目录页按钮*/
+        .return {
+            width: 16%;
+            height: 20%;
+            position: fixed;
+            top: 80%;
+            left: 40%;
+            z-index: 999999;
+            /*border:1px solid blue;*/
+            background: transparent !important;
+        }
+
+        /*下一页*/
+        .nextPage {
+            width: 16%;
+            height: 20%;
+            position: fixed;
+            top: 80%;
+            left: 58%;
+            z-index: 999999;
+            /*border:1px solid red;*/
+            background: transparent !important;
+        }
+
+
+        .btnImg {
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            z-index: 99999;
+            background-size: cover;
+            point-events: none;
+        }
+
+        /*弹出窗口*/
+        .g-plugin-confirm {
+            position: fixed;
+            z-index: 9999999999999;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            display: -webkit-box;
+            display: -moz-box;
+            display: -ms-flexbox;
+            display: flex;
+            /*background: rgba(0, 0, 0, 0.1);*/
+            background-color: rgba(0, 0, 0, 0.35);
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* line 397, global.sass */
+        .g-plugin-confirm>div {
+            background: rgba(255, 255, 255, 0.9);
+            width: 80%;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+            -ms-border-radius: 10px;
+            -o-border-radius: 10px;
+            border-radius: 10px;
+        }
+
+        /* line 402, global.sass */
+        .g-plugin-confirm>div>div:nth-child(1) {
+            text-align: center;
+            color: black;
+            padding: 22px;
+        }
+
+        /* line 406, global.sass */
+        .g-plugin-confirm>div>div:nth-child(2) {
+            display: -webkit-box;
+            display: -moz-box;
+            display: -ms-flexbox;
+            display: flex;
+            border-top: 1px solid #cbcbd1;
+        }
+
+        /* line 409, global.sass */
+        .g-plugin-confirm>div>div:nth-child(2) a {
+            -moz-box-flex: 1;
+            -webkit-box-flex: 1;
+            -ms-flex: 1;
+            flex: 1;
+            border-right: 1px solid #cbcbd1;
+            text-align: center;
+            padding: 8px 0;
+            color: #3bbec0;
+            font-size: 22px;
+            text-decoration: none;
+        }
+
+        /* line 106, global.sass */
+        .g-plugin-confirm>div>div:nth-child(2) a:last-child {
+            border-right: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shade">
+        <div class="sk-fading-circle">
+            <div class="sk-circle1 sk-circle"></div>
+            <div class="sk-circle2 sk-circle"></div>
+            <div class="sk-circle3 sk-circle"></div>
+            <div class="sk-circle4 sk-circle"></div>
+            <div class="sk-circle5 sk-circle"></div>
+            <div class="sk-circle6 sk-circle"></div>
+            <div class="sk-circle7 sk-circle"></div>
+            <div class="sk-circle8 sk-circle"></div>
+            <div class="sk-circle9 sk-circle"></div>
+            <div class="sk-circle10 sk-circle"></div>
+            <div class="sk-circle11 sk-circle"></div>
+            <div class="sk-circle12 sk-circle"></div>
+        </div>
+        <div class="number"></div>
+    </div>
+    <div class="flipbook-viewport" style="display:none;">
+        <div class="previousPage"></div>
+        <div class="nextPage"></div>
+        <div class="return"></div>
+        <img class="btnImg" src="./btn.gif" style="display: none" />
+        <div class="container">
+            <div class="flipbook">
+                <div id="first" style="background:url('0001.jpg') center top no-repeat;background-size:100%"></div>
+                <div style="background:url(0002.jpg) center top no-repeat;background-size:100%"></div>
+                <div style="background:url(0003.jpg) center top no-repeat;background-size:100%"></div>
+                <div style="background:url(0004.jpg) center top no-repeat;background-size:100%"></div>
+                <div style="background:url(0005.jpg) center top no-repeat;background-size:100%"></div>
+                <div style="background:url(0006.jpg) center top no-repeat;background-size:100%"></div>
+                <div style="background:url(0007.jpg) center top no-repeat;background-size:100%"></div>
+                <div style="background:url(0008.jpg) center top no-repeat;background-size:100%"></div>
+                <div style="background:url(0009.jpg) center top no-repeat;background-size:100%"></div>
+                <div id="end" style="background:url(0010.jpg) center top no-repeat;background-size:100%"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        /**
+         * Created by ChengYa on 2016/6/18.
+         */
+
+        //判断手机类型
+        window.onload = function () {
+            //alert($(window).height());
+            var u = navigator.userAgent;
+            if (u.indexOf('Android') > -1 || u.indexOf('Linux') > -1) { //安卓手机
+            } else if (u.indexOf('iPhone') > -1) { //苹果手机
+                //屏蔽ios下上下弹性
+                $(window).on('scroll.elasticity', function (e) {
+                    e.preventDefault();
+                }).on('touchmove.elasticity', function (e) {
+                    e.preventDefault();
+                });
+            } else if (u.indexOf('Windows Phone') > -1) { //winphone手机
+            }
+            //预加载
+            loading();
+        }
+
+        var date_start;
+        var date_end;
+        date_start = getNowFormatDate();
+        //加载图片
+        var loading_img_url = [
+            "./0001.jpg",
+            "./0002.jpg",
+            "./0003.jpg",
+            "./0004.jpg",
+            "./0005.jpg",
+            "./0006.jpg",
+            "./0007.jpg",
+            "./0008.jpg",
+            "./0009.jpg",
+            "./0010.jpg"
+        ];
+
+        //加载页面
+        function loading() {
+            var numbers = 0;
+            var length = loading_img_url.length;
+
+            for (var i = 0; i < length; i++) {
+                var img = new Image();
+                img.src = loading_img_url[i];
+                img.onerror = function () {
+                    numbers += (1 / length) * 100;
+                }
+                img.onload = function () {
+                    numbers += (1 / length) * 100;
+                    $('.number').html(parseInt(numbers) + "%");
+                    console.log(numbers);
+                    if (Math.round(numbers) == 100) {
+                        //$('.number').hide();
+                        date_end = getNowFormatDate();
+                        var loading_time = date_end - date_start;
+                        //预加载图片
+                        $(function progressbar() {
+                            //拼接图片
+                            $('.shade').hide();
+                            var w = $(".graph").width();
+                            $(".flipbook-viewport").show();
+                        });
+                        //配置turn.js
+                        function loadApp() {
+                            var w = $(window).width();
+                            var h = $(window).height();
+                            $('.flipboox').width(w).height(h);
+                            $(window).resize(function () {
+                                w = $(window).width();
+                                h = $(window).height();
+                                $('.flipboox').width(w).height(h);
+                            });
+                            $('.flipbook').turn({
+                                // Width
+                                width: w,
+                                // Height
+                                height: h,
+                                // Elevation
+                                elevation: 50,
+                                display: 'single',
+                                // Enable gradients
+                                gradients: true,
+                                // Auto center this flipbook
+                                autoCenter: true,
+                                when: {
+                                    turning: function (e, page, view) {
+                                        if (page == 1) {
+                                            $(".btnImg").css("display", "none");
+                                            $(".mark").css("display", "block");
+                                        } else {
+                                            $(".btnImg").css("display", "block");
+                                            $(".mark").css("display", "none");
+                                        }
+                                        if (page == 10) {
+                                            $(".nextPage").css("display", "none");
+                                        } else {
+                                            $(".nextPage").css("display", "block");
+                                        }
+                                    },
+                                    turned: function (e, page, view) {
+                                        console.log(page);
+                                        var total = $(".flipbook").turn("pages"); //总页数
+                                        if (page == 1) {
+                                            $(".return").css("display", "none");
+                                            $(".btnImg").css("display", "none");
+                                        } else {
+                                            $(".return").css("display", "block");
+                                            $(".btnImg").css("display", "block");
+                                        }
+                                        if (page == 2) {
+                                            $(".catalog").css("display", "block");
+                                        } else {
+                                            $(".catalog").css("display", "none");
+                                        }
+                                    }
+                                }
+                            })
+                        }
+                        yepnope({
+                            load : ['https://cdn.bootcss.com/turn.js/3/turn.min.js'],
+                            complete: loadApp
+                        });
+                    };
+                }
+            }
+        }
+
+        function getNowFormatDate() {
+            var date = new Date();
+            var seperator1 = "";
+            var seperator2 = "";
+            var month = date.getMonth() + 1;
+            var strDate = date.getDate();
+            if (month >= 1 && month <= 9) {
+                month = "0" + month;
+            }
+            if (strDate >= 0 && strDate <= 9) {
+                strDate = "0" + strDate;
+            }
+            var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate +
+                "" + date.getHours() + seperator2 + date.getMinutes() +
+                seperator2 + date.getSeconds();
+            return currentdate;
+        }
+
+
+
+        //自定义仿iphone弹出层
+        (function ($) {
+            //ios confirm box
+            jQuery.fn.confirm = function (title, option, okCall, cancelCall) {
+                var defaults = {
+                    title: null, //what text
+                    cancelText: '取消', //the cancel btn text
+                    okText: '确定' //the ok btn text
+                };
+
+                if (undefined === option) {
+                    option = {};
+                }
+                if ('function' != typeof okCall) {
+                    okCall = $.noop;
+                }
+                if ('function' != typeof cancelCall) {
+                    cancelCall = $.noop;
+                }
+
+                var o = $.extend(defaults, option, {
+                    title: title,
+                    okCall: okCall,
+                    cancelCall: cancelCall
+                });
+
+                var $dom = $(this);
+
+                var dom = $('<div class="g-plugin-confirm">');
+                var dom1 = $('<div>').appendTo(dom);
+                var dom_content = $('<div>').html(o.title).appendTo(dom1);
+                var dom_btn = $('<div>').appendTo(dom1);
+                var btn_cancel = $('<a href="#"></a>').html(o.cancelText).appendTo(dom_btn);
+                var btn_ok = $('<a href="#"></a>').html(o.okText).appendTo(dom_btn);
+                btn_cancel.on('click', function (e) {
+                    o.cancelCall();
+                    dom.remove();
+                    e.preventDefault();
+                });
+                btn_ok.on('click', function (e) {
+                    o.okCall();
+                    dom.remove();
+                    e.preventDefault();
+                });
+
+                dom.appendTo($('body'));
+                return $dom;
+            };
+        })(jQuery);
+
+        //上一页
+        $(".previousPage").bind("touchend", function () {
+            var pageCount = $(".flipbook").turn("pages"); //总页数
+            var currentPage = $(".flipbook").turn("page"); //当前页
+            if (currentPage >= 2) {
+                $(".flipbook").turn('page', currentPage - 1);
+            } else {}
+        });
+        // 下一页
+        $(".nextPage").bind("touchend", function () {
+            var pageCount = $(".flipbook").turn("pages"); //总页数
+            var currentPage = $(".flipbook").turn("page"); //当前页
+            if (currentPage <= pageCount) {
+                $(".flipbook").turn('page', currentPage + 1);
+            } else {}
+        });
+        //返回到目录页
+        $(".return").bind("touchend", function () {
+            $(document).confirm('您确定要返回首页吗?', {}, function () {
+                $(".flipbook").turn('page', 1); //跳转页数
+            }, function () {});
+        });
+    </script>
+</body>
+
+</html>

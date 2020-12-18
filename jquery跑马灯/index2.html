@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>简单的jQuery无缝向上滚动效果演示2</title>
+<style>
+* { margin: 0; padding: 0;}
+.myscroll { width: 400px; height: 500px; margin: 0 auto; border: 1px solid #ccc; line-height: 26px; font-size: 12px; overflow: hidden;}
+.myscroll li { height: 250px; overflow: hidden;}
+.myscroll img { border: 0 none;}
+</style>
+<script src="http://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+<script src="js/scroll.js"></script>
+<script>
+$(function(){
+	$('.myscroll').myScroll({
+		speed: 10, //数值越大，速度越慢
+		rowHeight: 250 //li的高度
+	});
+});
+</script>
+</head>
+
+<body>
+<h1 style="margin: 40px; font: 32px Microsoft Yahei; text-align: center;">简单的jQuery无缝向上滚动效果演示2</h1>
+
+<div class="menu" style="text-align: center;line-height: 50px;">
+	<a href="index.html">演示1（文字滚动）</a>
+	<a class="cur" href="index2.html">演示2（图片滚动）</a>
+</div>
+
+<div class="myscroll">
+	<ul>
+		<li><a href="#"><img src="images/1.png" alt=""></a></li>
+		<li><a href="#"><img src="images/2.png" alt=""></a></li>
+		<li><a href="#"><img src="images/3.png" alt=""></a></li>
+		<li><a href="#"><img src="images/4.png" alt=""></a></li>
+		<li><a href="#"><img src="images/5.png" alt=""></a></li>
+		<li><a href="#"><img src="images/1.png" alt=""></a></li>
+		<li><a href="#"><img src="images/2.png" alt=""></a></li>
+		<li><a href="#"><img src="images/3.png" alt=""></a></li>
+		<li><a href="#"><img src="images/4.png" alt=""></a></li>
+		<li><a href="#"><img src="images/5.png" alt=""></a></li>
+	</ul>
+</div>
+
+
+</body>
+</html>

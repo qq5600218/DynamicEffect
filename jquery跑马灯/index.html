@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>简单的jQuery无缝向上滚动效果演示1</title>
+<style>
+* { margin: 0; padding: 0;}
+.myscroll { width: 300px; height: 260px; margin: 0 auto; border: 1px solid #ccc; line-height: 26px; font-size: 12px; overflow: hidden;}
+.myscroll li { height: 26px; margin-left: 25px;}
+.myscroll a { color: #333; text-decoration: none;}
+.myscroll a:hover { color: #ED5565; text-decoration: underline;}
+</style>
+<script src="http://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+<script src="js/scroll.js"></script>
+<script type="text/javascript">
+$(function(){
+	$('.myscroll').myScroll({
+		speed: 40, //数值越大，速度越慢
+		rowHeight: 26 //li的高度
+	});
+});
+</script>
+</head>
+
+<body>
+<h1 style="margin: 40px; font: 32px Microsoft Yahei; text-align: center;">简单的jQuery无缝向上滚动效果演示1</h1>
+
+<div class="menu" style="text-align: center;line-height: 50px;">
+	<a class="cur" href="index.html">演示1（文字滚动）</a>
+	<a href="index2.html">演示2（图片滚动）</a>
+</div>
+
+<div class="myscroll">
+	<ul>
+		<li><a href="#">2006年1月John Resig等人创建了jQuery</a></li>
+		<li><a href="#">8月，jQuery的第一个稳定版本</a></li>
+		<li><a href="#">事件处理和AJAX交互</a></li>
+		<li><a href="#">jQuery的性能达到了Prototype</a></li>
+		<li><a href="#">Mootools以及Dojo等同类JavaScript库的水平</a></li>
+		<li><a href="#">2008年5月，jQuery 1.2.6版发布</a></li>
+		<li><a href="#">微软和诺基亚公司正式宣布支持开源的jQuery库</a></li>
+		<li><a href="#">它使用了全新的选择符引擎Sizzle</a></li>
+		<li><a href="#">2010年1月，也是jQuery的四周年生日</a></li>
+		<li><a href="#">jQuery通过eval方法来解析json对象</a></li>
+		<li><a href="#">使用原生的JSON.parse解析json对象</a></li>
+		<li><a href="#">扁平化UI/Flat UI Kit(PSD)</a></li>
+		<li><a href="#">童趣卡通圣诞老人矢量素材(EPS)</a></li>
+		<li><a href="#">63个线性图标素材(PSD)</a></li>
+		<li><a href="#">15个音乐类图标素材(AI)</a></li>
+		<li><a href="#">jQuery侧边导航插件SidebarJS</a></li>
+		<li><a href="#">jQuery计时器插件TimeCircles</a></li>
+		<li><a href="#">jQuery仿Google Play幻灯片效果插件plusview</a></li>
+		<li><a href="#">100个圣诞节矢量图标(PSD/SVG)</a></li>
+		<li><a href="#">用FlexSlider制作《枪神纪》幻灯片效果</a></li>
+	</ul>
+</div>
+
+
+</body>
+</html>
